@@ -1,7 +1,7 @@
 'use strict'
 
 const db = require('../server/db')
-const {User} = require('../server/db/models')
+const {User, Treehouse, Cart, TreehouseCart} = require('../server/db/models')
 
 async function seed() {
   await db.sync({force: true})
@@ -13,7 +13,48 @@ async function seed() {
   ])
 
   console.log(`seeded ${users.length} users`)
+
+  const houses = [
+    {
+      name: 'Basic Tree House',
+      description: 'Budget-friendly and easily installed',
+      price: 9999,
+      imageUrl:
+        'https://i.pinimg.com/originals/be/4a/0e/be4a0eb411a219b65b05554c0dd7f9b2.jpg'
+    },
+    {
+      name: 'Intermediate Tree House',
+      description: 'Mild investment and needs a picture manual',
+      price: 29999,
+      imageUrl:
+        'https://cdn.vox-cdn.com/thumbor/U0OW7c-xhdZy78ExiV2z3nPwegc=/0x0:1437x960/1200x800/filters:focal(605x366:833x594)/cdn.vox-cdn.com/uploads/chorus_image/image/64044960/756e6baf_ef2d_4cb6_a57e_7c5b8efaff65.0.jpg'
+    },
+    {
+      name: 'Advanced Tree House',
+      description: 'Liquify your assets & hire professionals off the street',
+      price: 119999,
+      imageUrl:
+        'https://dch81km8r5tow.cloudfront.net/wp-content/uploads/2015/01/Key-Projects_Sharma-02-818x545_VSCO-958x559.jpg'
+    }
+  ]
+
+  const returnedHouses = await Promise.all(
+    houses.map(house => {
+      return Treehouse.create(house)
+    })
+  )
+
+  console.log(`seeded ${houses.length} users`)
   console.log(`seeded successfully`)
+
+  const carts = await Promise.all([Cart.create({active: true, userId: 1})])
+
+  const fristTreehouse = returnedHouses[0]
+  const firstCart = carts[0]
+  await firstCart.addTreehouse(fristTreehouse)
+  await firstCart.addTreehouse(returnedHouses[2])
+
+  console.log(`seeded ${carts.length} carts`)
 }
 
 // We've separated the `seed` function from the `runSeed` function.
